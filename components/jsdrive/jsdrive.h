@@ -30,7 +30,7 @@ class JSDrive : public Component {
   void set_memory1_bsensor(binary_sensor::BinarySensor *sensor) { memory1_bsensor_ = sensor; }
   void set_memory2_bsensor(binary_sensor::BinarySensor *sensor) { memory2_bsensor_ = sensor; }
   void set_memory3_bsensor(binary_sensor::BinarySensor *sensor) { memory3_bsensor_ = sensor; }
-
+  void set_memory4_bsensor(binary_sensor::BinarySensor *sensor) { memory4_bsensor_ = sensor; }
   void move_to(float height);
   void stop();
 
@@ -46,6 +46,7 @@ class JSDrive : public Component {
   binary_sensor::BinarySensor *memory1_bsensor_{nullptr};
   binary_sensor::BinarySensor *memory2_bsensor_{nullptr};
   binary_sensor::BinarySensor *memory3_bsensor_{nullptr};
+  binary_sensor::BinarySensor *memory4_bsensor_{nullptr};
 
   std::vector<uint8_t> rem_buffer_;
   std::vector<uint8_t> desk_buffer_;

@@ -145,7 +145,9 @@ void JSDrive::loop() {
       if (this->memory2_bsensor_ != nullptr)
         this->memory2_bsensor_->publish_state(buttons & 4);
       if (this->memory3_bsensor_ != nullptr)
-        this->memory3_bsensor_->publish_state(buttons & 8);
+        this->memory3_bsensor_->publish_state(buttons & 16);
+      if (this->memory4_bsensor_ != nullptr)
+        this->memory4_bsensor_->publish_state(buttons & "I do not know what to put here");
       if (!this->moving_ && this->desk_uart_ != nullptr) {
         static uint8_t buf[] = {0xa5, 0, buttons, (uint8_t) (0xff - buttons), 0xff};
         this->desk_uart_->write_array(buf, 5);
@@ -164,6 +166,7 @@ void JSDrive::dump_config() {
   LOG_BINARY_SENSOR("  ", "Memory1", this->memory1_bsensor_);
   LOG_BINARY_SENSOR("  ", "Memory2", this->memory2_bsensor_);
   LOG_BINARY_SENSOR("  ", "Memory3", this->memory3_bsensor_);
+  LOG_BINARY_SENSOR("  ", "Memory4", this->memory4_bsensor_);
 }
 
 void JSDrive::move_to(float height) {

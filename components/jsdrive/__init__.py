@@ -19,6 +19,7 @@ CONF_DOWN = "down"
 CONF_MEMORY1 = "memory1"
 CONF_MEMORY2 = "memory2"
 CONF_MEMORY3 = "memory3"
+CONF_MEMORY4 = "memory4"
 
 CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend({
     cv.GenerateID(): cv.declare_id(JSDrive),
@@ -33,6 +34,7 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend({
     cv.Optional(CONF_MEMORY1): binary_sensor.binary_sensor_schema(),
     cv.Optional(CONF_MEMORY2): binary_sensor.binary_sensor_schema(),
     cv.Optional(CONF_MEMORY3): binary_sensor.binary_sensor_schema(),
+    cv.Optional(CONF_MEMORY4): binary_sensor.binary_sensor_schema(),
 })
 
 
@@ -65,4 +67,6 @@ async def to_code(config):
     if CONF_MEMORY3 in config:
         sens = await binary_sensor.new_binary_sensor(config[CONF_MEMORY3])
         cg.add(var.set_memory3_bsensor(sens))
-
+    if CONF_MEMORY4 in config:
+        sens = await binary_sensor.new_binary_sensor(config[CONF_MEMORY4])
+        cg.add(var.set_memory4_bsensor(sens))
