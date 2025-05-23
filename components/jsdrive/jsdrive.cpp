@@ -88,7 +88,7 @@ void JSDrive::loop() {
         int d1 = segs_to_num(d[1]);
         int d2 = segs_to_num(d[2]);
         if (d0 == -2)
-          ESP_LOGE(TAG, "Desk error code %d%d%d", d0, d1, d2)
+          ESP_LOGE(TAG, "Desk error code %d%d%d", d0, d1, d2);
           break;
         if (d0 < 0 || d1 < 0 || d2 < 0)
           break;
