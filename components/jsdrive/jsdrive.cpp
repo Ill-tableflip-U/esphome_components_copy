@@ -44,7 +44,7 @@ static int segs_to_num(uint8_t segments) {
    case 0x79:
     return -2;
    default:
-    ESP_LOGE(TAG, "unknown digit: %02f", segments & 0x7f);
+    ESP_LOGE(TAG, "unknown digit: %02x", segments & 0x7f);
     
   }
   return -1;
