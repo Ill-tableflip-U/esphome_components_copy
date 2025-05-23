@@ -44,7 +44,8 @@ static int segs_to_num(uint8_t segments) {
    case 0x79:
     return -2;
    default:
-    ESP_LOGV(TAG, "unknown digit: %02f", segments & 0x7f);
+    ESP_LOGE(TAG, "unknown digit: %02f", segments & 0x7f);
+    
   }
   return -1;
 }
@@ -88,7 +89,7 @@ void JSDrive::loop() {
         int d1 = segs_to_num(d[1]);
         int d2 = segs_to_num(d[2]);
         if (d0 == -2)
-          ESP_LOGE(TAG, "Desk error code %d%d%d", d0, d1, d2);
+          ESP_LOGE(TAG, "Desk error code E%d%d", d1, d2);
           //break;
         if (d0 < 0 || d1 < 0 || d2 < 0)
           break;
