@@ -21,31 +21,31 @@ const char *jsdrive_operation_to_str(JSDriveOperation op) {
 
 static int segs_to_num(uint8_t segments) {
   switch (segments & 0x7f) {
-   case 0x3f:
-    return 0;
-   case 0x06:
-    return 1;
-   case 0x5b:
-    return 2;
-   case 0x4f:
-    return 3;
-   case 0x67:
-    return 4;
-   case 0x6d:
-    return 5;
-   case 0x7d:
-    return 6;
-   case 0x07:
-    return 7;
-   case 0x7f:
-    return 8;
-   case 0x6f:
-    return 9;
-   case 0x79:
-    return -2;
-   default:
-    ESP_LOGE(TAG, "unknown digit: %02x", segments & 0x7f);
-    
+    case 0x3f:
+      return 0;
+    case 0x06:
+      return 1;
+    case 0x5b:
+      return 2;
+    case 0x4f:
+      return 3;
+    case 0x66: // New case for standard digit 4
+    case 0x67: // Existing case for the non-standard digit 4
+      return 4;
+    case 0x6d:
+      return 5;
+    case 0x7d:
+      return 6;
+    case 0x07:
+      return 7;
+    case 0x7f:
+      return 8;
+    case 0x6f:
+      return 9;
+    case 0x79:
+      return -2; // This value is unusual, typically for 'E' or 'F' on some displays, or a custom symbol.
+    default:
+      ESP_LOGE(TAG, "unknown digit: %02x", segments & 0x7f);
   }
   return -1;
 }
