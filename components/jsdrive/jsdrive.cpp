@@ -49,7 +49,13 @@ static int segs_to_num(uint8_t segments) {
   }
   return -1;
 }
-
+void JSDrive::setup()
+{
+    if (move_pin_)
+    {
+        move_pin_->digital_write(false);
+    }
+}
 void JSDrive::loop() {
   uint8_t c;
   bool have_data = false;
@@ -109,6 +115,8 @@ void JSDrive::loop() {
     if ((this->move_dir_ && (this->current_pos_ >= this->target_pos_)) ||
         (!this->move_dir_ && (this->current_pos_ <= this->target_pos_))) {
       this->moving_ = false;
+          if (move_pin_)
+              move_pin_->digital_write(false);
     } else {
       static uint8_t buf[] = {0xa5, 0, 0, 0, 0xff};
       buf[2] = (this->move_dir_ ? 0x20 : 0x40);
@@ -166,6 +174,7 @@ void JSDrive::dump_config() {
   ESP_LOGCONFIG(TAG, "JSDrive Desk");
   if (this->desk_uart_ != nullptr)
     ESP_LOGCONFIG(TAG, "  Message Length: %d", this->message_length_);
+  LOG_PIN("Move Pin: ", move_pin_);
   LOG_SENSOR("", "Height", this->height_sensor_);
   LOG_BINARY_SENSOR("  ", "Up", this->up_bsensor_);
   LOG_BINARY_SENSOR("  ", "Down", this->down_bsensor_);
@@ -182,9 +191,17 @@ void JSDrive::move_to(float height) {
   this->target_pos_ = height;
   this->move_dir_ = height > this->current_pos_;
   this->current_operation = this->move_dir_ ? JSDRIVE_OPERATION_RAISING : JSDRIVE_OPERATION_LOWERING;
+
+  if (move_pin_)
+    move_pin_->digital_write(true);
+
 }
 
 void JSDrive::stop() {
+    if (move_pin_)
+    {
+        move_pin_->digital_write(false);
+    }
   this->moving_ = false;
   this->current_operation = JSDRIVE_OPERATION_IDLE;
 }
