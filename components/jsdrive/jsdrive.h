@@ -19,6 +19,7 @@ const char *jsdrive_operation_to_str(JSDriveOperation op);
 class JSDrive : public Component {
  public:
   float get_setup_priority() const override { return setup_priority::LATE; }
+  void setup() override;
   void loop() override;
   void dump_config() override;
   void set_remote_uart(uart::UARTComponent *uart) { this->remote_uart_ = uart; }
