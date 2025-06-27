@@ -61,7 +61,7 @@ void JSDrive::loop() {
       // Check if the first byte is 0xA5 (start of the 5-byte message)
       if (c == 0xA5) {
         // Immediately send the response: 0x5A 00 00 00 00
-        static uint8_t response[] = {0x5A, 0x9C, 0x7F, 0x67, 0x66};
+        static uint8_t response[] = {0x5A, 0x9C, 0x7F, 0x67, 0x00};
         this->remote_uart_->write_array(response, 5);
         // Return immediately to avoid further processing
         return;
