@@ -59,7 +59,7 @@ void JSDrive::loop() {
       // If the first byte is 0xA5, send the response immediately
       if (c == 0xA5) {
         // Send the response 0x5A 00 00 00 00 immediately
-        static uint8_t response[] = {0x5A, 0x00, 0x00, 0x00, 0x00};
+        static uint8_t response[] = {0x5A, 0x00, 0x06, 0x00, 0x00};
         this->remote_uart_->write_array(response, 5);
 
         // Manually clear the UART buffer by reading and discarding any leftover bytes
