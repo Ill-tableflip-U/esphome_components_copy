@@ -120,11 +120,14 @@ void Desktronic::stop()
         move_pin_->digital_write(false);
     }
 
-    // Send a stop command (a5 00 00 ff ff)
+    // Send the stop command 20 times (a5 00 00 ff ff)
     uint8_t stop_command[5] = {0xa5, 0x00, 0x00, 0xff, 0xff};
     if (remote_uart_)
     {
-        remote_uart_->write_array(stop_command, sizeof(stop_command));
+        for (int i = 0; i < 20; i++)
+        {
+            remote_uart_->write_array(stop_command, sizeof(stop_command));
+        }
     }
 
     // Set the target height to -1 to indicate stopping
