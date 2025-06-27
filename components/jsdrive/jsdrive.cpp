@@ -62,8 +62,10 @@ void JSDrive::loop() {
         static uint8_t response[] = {0x5A, 0x00, 0x00, 0x00, 0x00};
         this->remote_uart_->write_array(response, 5);
 
-        // Clear any leftover bytes in the buffer to avoid unwanted messages
-        this->remote_uart_->clear();
+        // Manually clear the UART buffer by reading and discarding any leftover bytes
+        while (this->remote_uart_->available()) {
+          this->remote_uart_->read_byte(&c); // Discard bytes
+        }
         
         // Exit the loop immediately to avoid further processing
         return;
