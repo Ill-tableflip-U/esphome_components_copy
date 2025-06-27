@@ -43,7 +43,7 @@ void JSDrive::loop() {
       if (move_pin_)
           move_pin_->digital_write(false);
     } else {
-      static uint8_t buf[] = {0xa5, 0, 0, 0, 0xff};
+      static uint8_t buf[] = {0xa5, 0, 3f, 0, 0xff};
       buf[2] = (this->move_dir_ ? 0x20 : 0x40);
       buf[3] = 0xff - buf[2];
       this->desk_uart_->write_array(buf, 5);
