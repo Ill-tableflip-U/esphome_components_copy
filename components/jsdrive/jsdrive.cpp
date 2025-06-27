@@ -43,7 +43,7 @@ void JSDrive::loop() {
       if (move_pin_)
           move_pin_->digital_write(false);
     } else {
-      static uint8_t buf[] = {0xa5, 0, 3f, 0, 0xff};
+      static uint8_t buf[] = {0xa5, 0, 0, 0, 0xff};
       buf[2] = (this->move_dir_ ? 0x20 : 0x40);
       buf[3] = 0xff - buf[2];
       this->desk_uart_->write_array(buf, 5);
@@ -61,7 +61,7 @@ void JSDrive::loop() {
       // Check if the first byte is 0xA5 (start of the 5-byte message)
       if (c == 0xA5) {
         // Immediately send the response: 0x5A 00 00 00 00
-        static uint8_t response[] = {0x5A, 0x00, 0x06, 0x00, 0x00};
+        static uint8_t response[] = {0x5A, 0x00, 0x3f, 0x00, 0x00};
         this->remote_uart_->write_array(response, 5);
         // Return immediately to avoid further processing
         return;
