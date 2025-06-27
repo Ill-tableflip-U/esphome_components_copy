@@ -19,12 +19,10 @@ const char *jsdrive_operation_to_str(JSDriveOperation op) {
   }
 }
 
-void JSDrive::setup()
-{
-    if (move_pin_)
-    {
-        move_pin_->digital_write(false);
-    }
+void JSDrive::setup() {
+  if (move_pin_) {
+    move_pin_->digital_write(false);
+  }
 }
 
 void JSDrive::loop() {
@@ -41,7 +39,7 @@ void JSDrive::loop() {
         (!this->move_dir_ && (this->current_pos_ <= this->target_pos_))) {
       this->moving_ = false;
       if (move_pin_)
-          move_pin_->digital_write(false);
+        move_pin_->digital_write(false);
     } else {
       static uint8_t buf[] = {0xa5, 0, 0, 0, 0xff};
       buf[2] = (this->move_dir_ ? 0x20 : 0x40);
@@ -58,24 +56,30 @@ void JSDrive::loop() {
     while (this->remote_uart_->available()) {
       this->remote_uart_->read_byte(&c);
 
-      // Check if the first byte is 0xA5 (start of the 5-byte message)
+      // If the first byte is 0xA5, send the response immediately
       if (c == 0xA5) {
-        // Immediately send the response: 0x5A 00 00 00 00
-        static uint8_t response[] = {0x5A, 0x00, 0x3f, 0x00, 0x00};
+        // Send the response 0x5A 00 00 00 00 immediately
+        static uint8_t response[] = {0x5A, 0x00, 0x00, 0x00, 0x00};
         this->remote_uart_->write_array(response, 5);
-        // Return immediately to avoid further processing
+
+        // Clear any leftover bytes in the buffer to avoid unwanted messages
+        this->remote_uart_->clear();
+        
+        // Exit the loop immediately to avoid further processing
         return;
       }
-
-      // Process other incoming messages as needed
+      
+      // Process other incoming messages if needed
       if (!this->rem_rx_) {
         if (c == 0xa5)
           this->rem_rx_ = true;
         continue;
       }
+      
       this->rem_buffer_.push_back(c);
       if (this->rem_buffer_.size() < 4)
         continue;
+      
       this->rem_rx_ = false;
       uint8_t *d = this->rem_buffer_.data();
       uint8_t csum = d[0] + d[1] + d[2];
@@ -104,7 +108,7 @@ void JSDrive::loop() {
         this->memory4_bsensor_->publish_state(buttons & 16);
 
       if (!this->moving_ && this->desk_uart_ != nullptr) {
-        static uint8_t buf[] = {0xa5, 0, buttons, (uint8_t) (0xff - buttons), 0xff};
+        static uint8_t buf[] = {0xa5, 0, buttons, (uint8_t)(0xff - buttons), 0xff};
         this->desk_uart_->write_array(buf, 5);
       }
     }
