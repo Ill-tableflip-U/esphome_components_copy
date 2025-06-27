@@ -6,19 +6,6 @@ namespace jsdrive {
 
 static const char *const TAG = "jsdrive";
 
-const char *jsdrive_operation_to_str(JSDriveOperation op) {
-  switch (op) {
-    case JSDRIVE_OPERATION_IDLE:
-      return "IDLE";
-    case JSDRIVE_OPERATION_RAISING:
-      return "RAISING";
-    case JSDRIVE_OPERATION_LOWERING:
-      return "LOWERING";
-    default:
-      return "UNKNOWN";
-  }
-}
-
 void JSDrive::setup() {
   if (move_pin_) {
     move_pin_->digital_write(false);
@@ -59,40 +46,21 @@ void JSDrive::loop() {
       // If the first byte is 0xA5, send the response immediately
       if (c == 0xA5) {
         // Send the response 0x5A 00 00 00 00 immediately
-        static uint8_t response[] = {0x5A, 0x00, 0x06, 0x00, 0x00};
+        static uint8_t response[] = {0x5A, 0x00, 0x00, 0x00, 0x00};
         this->remote_uart_->write_array(response, 5);
-
+        
         // Manually clear the UART buffer by reading and discarding any leftover bytes
+        // This ensures we're only responding to fresh bytes, preventing delays from queued data
         while (this->remote_uart_->available()) {
           this->remote_uart_->read_byte(&c); // Discard bytes
         }
         
-        // Exit the loop immediately to avoid further processing
+        // Return immediately to handle the next byte right away
         return;
       }
       
-      // Process other incoming messages if needed
-      if (!this->rem_rx_) {
-        if (c == 0xa5)
-          this->rem_rx_ = true;
-        continue;
-      }
-      
-      this->rem_buffer_.push_back(c);
-      if (this->rem_buffer_.size() < 4)
-        continue;
-      
-      this->rem_rx_ = false;
-      uint8_t *d = this->rem_buffer_.data();
-      uint8_t csum = d[0] + d[1] + d[2];
-      if (csum != d[3]) {
-        ESP_LOGE(TAG, "remote checksum mismatch: %02x != %02x", csum, d[3]);
-        this->rem_buffer_.clear();
-        continue;
-      }
-      buttons = d[1];
-      have_data = true;
-      this->rem_buffer_.clear();
+      // If we encounter an unexpected byte (not 0xA5), process as needed
+      // ...
     }
 
     if (have_data) {
