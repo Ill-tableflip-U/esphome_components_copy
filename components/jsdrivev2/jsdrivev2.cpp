@@ -163,7 +163,7 @@ void Desktronic::read_remote_uart()
         // Check if the received byte is 0xA5 and respond with the desired 5-byte command
         //if (byte == 0xA5)
         //{
-            uint8_t response[5] = {0x5A, 0x00, 0x00, 0x00, 0x00};
+            uint8_t response[5] = {0x5A, 0x06, 0x00, 0x00, 0x00};
             remote_uart_->write_array(response, 5); // Send the response
             ESP_LOGI(TAG, "Received 0xA5, responding with: 0x5A 0x00 0x00 0x00 0x00");
        // }
