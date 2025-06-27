@@ -1,4 +1,5 @@
 #include "esphome/core/log.h"
+#include "esphome/components/uart/uart.h" // Include the necessary header for UART
 
 namespace esphome {
 namespace desktronic {
@@ -10,11 +11,11 @@ static const uint8_t RESPONSE_MESSAGE[] = {0xA5, 0x00, 0x00, 0x00, 0x00};
 
 class Desktronic {
 public:
-    void setup() {
-        // Make sure UART is initialized
+    // The setup function will initialize the UART and check if it's ready
+    void setup(uart::UARTComponent *remote_uart) {
+        remote_uart_ = remote_uart;  // Initialize the remote_uart pointer
         if (!remote_uart_) {
             ESP_LOGE(TAG, "UART not initialized.");
-            return;
         }
     }
 
@@ -24,9 +25,10 @@ public:
     }
 
 private:
+    // Function to read and respond to UART messages
     void read_remote_uart() {
         if (!remote_uart_) {
-            return;
+            return; // If remote_uart is not initialized, exit
         }
 
         uint8_t byte;
@@ -41,8 +43,7 @@ private:
         }
     }
 
-    // Assume `remote_uart_` is set up elsewhere as part of the system
-   // uart::UARTComponent* remote_uart_;
+    uart::UARTComponent *remote_uart_ = nullptr; // Declare the UART component pointer
 };
 
 }  // namespace desktronic
