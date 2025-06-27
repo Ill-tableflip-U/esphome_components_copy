@@ -120,9 +120,18 @@ void Desktronic::stop()
         move_pin_->digital_write(false);
     }
 
+    // Send a stop command (a5 00 00 ff ff)
+    uint8_t stop_command[5] = {0xa5, 0x00, 0x00, 0xff, 0xff};
+    if (remote_uart_)
+    {
+        remote_uart_->write_array(stop_command, sizeof(stop_command));
+    }
+
+    // Set the target height to -1 to indicate stopping
     target_height_ = -1.0;
     current_operation = DESKTRONIC_OPERATION_IDLE;
 }
+
 
 void Desktronic::read_remote_uart()
 {
