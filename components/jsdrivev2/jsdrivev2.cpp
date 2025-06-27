@@ -42,7 +42,7 @@ private:
     }
 
     // Assume `remote_uart_` is set up elsewhere as part of the system
-    uart::UARTComponent* remote_uart_;
+   // uart::UARTComponent* remote_uart_;
 };
 
 }  // namespace desktronic
