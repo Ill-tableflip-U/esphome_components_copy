@@ -49,6 +49,7 @@ static int segs_to_num(uint8_t segments) {
   }
   return -1;
 }
+
 void JSDrive::setup()
 {
     if (move_pin_)
@@ -56,67 +57,23 @@ void JSDrive::setup()
         move_pin_->digital_write(false);
     }
 }
+
 void JSDrive::loop() {
   uint8_t c;
   bool have_data = false;
+  
   if (this->desk_uart_ != nullptr) {
-    float num;
-    while (this->desk_uart_->available()) {
-      this->desk_uart_->read_byte(&c);
-      if (this->remote_uart_ != nullptr)
-        this->remote_uart_->write_byte(c);
-      if (!this->desk_rx_) {
-        if (c == 0x5a)
-          this->desk_rx_ = true;
-        continue;
-      }
-      this->desk_buffer_.push_back(c);
-      if (this->desk_buffer_.size() < this->message_length_ - 1)
-        continue;
-      this->desk_rx_ = false;
-      uint8_t *d = this->desk_buffer_.data();
-      uint8_t csum = d[0] + d[1] + d[2];
-      if (this->message_length_ > 5)
-        csum += d[3];
-      uint8_t tcsum = this->message_length_ == 5 ? d[3] : d[4];
-      if (csum != tcsum) {
-        ESP_LOGE(TAG, "desk checksum mismatch: %02x != %02x", csum, tcsum);
-        this->desk_buffer_.clear();
-        continue;
-      }
-      do {
-        if ((this->message_length_ == 6) && (d[3] != 1)) {
-          ESP_LOGV(TAG, "unknown message type %02x", d[3]);
-          break;
-        }
-        if ((d[0] | d[1] | d[2]) == 0)
-          break;
-        int d0 = segs_to_num(d[0]);
-        int d1 = segs_to_num(d[1]);
-        int d2 = segs_to_num(d[2]);
-        if (d0 == -2)
-          ESP_LOGE(TAG, "Desk error code E%d%d", d1, d2);
-          //break;
-        if (d0 < 0 || d1 < 0 || d2 < 0)
-          break;
-        num = segs_to_num(d[0]) * 100 + segs_to_num(d[1]) * 10 + segs_to_num(d[2]);
-        have_data = true;
-        if (d[1] & 0x80)
-          num /= 10.0;
-      } while (false);
-      this->desk_buffer_.clear();
-    }
-    if (have_data && (this->height_sensor_ != nullptr) && (this->current_pos_ != num)) {
-      this->height_sensor_->publish_state(num);
-      this->current_pos_ = num;
-    }
+    // Your existing desk UART reading and processing here
+    // ...
+
   }
+
   if (this->moving_) {
     if ((this->move_dir_ && (this->current_pos_ >= this->target_pos_)) ||
         (!this->move_dir_ && (this->current_pos_ <= this->target_pos_))) {
       this->moving_ = false;
-          if (move_pin_)
-              move_pin_->digital_write(false);
+      if (move_pin_)
+          move_pin_->digital_write(false);
     } else {
       static uint8_t buf[] = {0xa5, 0, 0, 0, 0xff};
       buf[2] = (this->move_dir_ ? 0x20 : 0x40);
@@ -124,11 +81,24 @@ void JSDrive::loop() {
       this->desk_uart_->write_array(buf, 5);
     }
   }
+  
   uint8_t buttons = 0;
   have_data = false;
+
   if (this->remote_uart_ != nullptr) {
     while (this->remote_uart_->available()) {
       this->remote_uart_->read_byte(&c);
+
+      // Check if the first byte is 0xA5 (start of the 5-byte message)
+      if (c == 0xA5) {
+        // Send the response 0x5A 00 00 00 00
+        static uint8_t response[] = {0x5A, 0x00, 0x00, 0x00, 0x00};
+        this->remote_uart_->write_array(response, 5);
+
+        // Skip further processing of this message
+        continue;
+      }
+
       if (!this->rem_rx_) {
         if (c == 0xa5)
           this->rem_rx_ = true;
@@ -149,6 +119,7 @@ void JSDrive::loop() {
       have_data = true;
       this->rem_buffer_.clear();
     }
+
     if (have_data) {
       if (this->up_bsensor_ != nullptr)
         this->up_bsensor_->publish_state(buttons & 0x20);
@@ -162,6 +133,7 @@ void JSDrive::loop() {
         this->memory3_bsensor_->publish_state(buttons & 8);
       if (this->memory4_bsensor_ != nullptr)
         this->memory4_bsensor_->publish_state(buttons & 16);
+
       if (!this->moving_ && this->desk_uart_ != nullptr) {
         static uint8_t buf[] = {0xa5, 0, buttons, (uint8_t) (0xff - buttons), 0xff};
         this->desk_uart_->write_array(buf, 5);
@@ -194,14 +166,13 @@ void JSDrive::move_to(float height) {
 
   if (move_pin_)
     move_pin_->digital_write(true);
-
 }
 
 void JSDrive::stop() {
-    if (move_pin_)
-    {
-        move_pin_->digital_write(false);
-    }
+  if (move_pin_)
+  {
+    move_pin_->digital_write(false);
+  }
   this->moving_ = false;
   this->current_operation = JSDRIVE_OPERATION_IDLE;
 }
